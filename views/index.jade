@@ -1,0 +1,32 @@
+h1= title
+
+p
+  input#chat_input(size=80)
+p
+  textarea#chat_text(cols=80, rows=20)
+
+script(type='text/javascript')
+  $(document).ready(function() {
+    var client = new Faye.Client('http://localhost:3000/faye');
+
+    client.subscribe('/messages', function(message) {
+      console.log("[recv] " + message)
+
+      var now = new Date();
+      var now_string = now.getHours()+':'+now.getMinutes()+':'+now.getSeconds();
+      $('#chat_text').prepend(now_string + ": " + message + "\n")
+    })
+
+    $('#chat_input').keydown(function(e) {
+      if(e.keyCode == 13) {
+        var msg = $(this).val()
+        if(!msg) {
+          return;
+        } else {
+          console.log("[send] " + msg);
+          client.publish('/messages', msg);
+          $(this).val('');
+        }
+      }
+    })
+  })
