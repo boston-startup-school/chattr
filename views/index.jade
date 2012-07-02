@@ -1,7 +1,10 @@
 h1= title
 
 p
-  input#chat_input(size=80)
+  input#chat_name(value="Name")
+
+p
+  input#chat_input(size=80, value="Message")
 p
   textarea#chat_text(cols=80, rows=20)
 
@@ -14,19 +17,30 @@ script(type='text/javascript')
 
       var now = new Date();
       var now_string = now.getHours()+':'+now.getMinutes()+':'+now.getSeconds();
-      $('#chat_text').prepend(now_string + ": " + message + "\n")
+      $('#chat_text').prepend("[" + now_string + "] " + message.name + ": " + message.text + "\n")
     })
 
     $('#chat_input').keydown(function(e) {
       if(e.keyCode == 13) {
-        var msg = $(this).val()
+        var msg = $(this).val();
         if(!msg) {
           return;
         } else {
+          var name = $('#chat_name').val();
+          var msg_json = {text: msg, name: name}
+
           console.log("[send] " + msg);
-          client.publish('/messages', msg);
+          client.publish('/messages', msg_json);
           $(this).val('');
         }
       }
+    })
+
+    $('#chat_name').focus(function() {
+      $(this).val('');
+    })
+
+    $('#chat_input').focus(function() {
+      $(this).val('');
     })
   })
